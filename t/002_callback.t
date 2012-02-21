@@ -8,7 +8,7 @@ my $dr = Data::RuledCluster->new(
     callback => undef,
 );
 
-subtest 'basic method' => sub {
+subtest 'callback' => sub {
     my $config = +{
         clusters => +{
             USER_W => [qw/USER001_W USER002_W/],
@@ -22,22 +22,23 @@ subtest 'basic method' => sub {
         },
     };
     $dr->config($config);
+    $dr->{callback} = sub {
+        my ($self, $node, $node_info) = @_;
+        isa_ok $self, 'Data::RuledCluster';
+        is $node, 'USER002_W';
+        is_deeply $node_info, ['dbi:mysql:user002', 'root', '',];
+    };
 
-    ok $dr->is_cluster('USER_W');
-    ok $dr->is_cluster('USER_R');
-    ok $dr->is_node('USER001_W');
-    ok $dr->is_node('USER002_W');
-    ok $dr->is_node('USER001_R');
-    ok $dr->is_node('USER002_R');
+    $dr->resolve('USER_W', 1);
 
-    my $nodes;
-    $nodes = $dr->clusters('USER_W');
-    note explain $nodes;
-    is_deeply $nodes, [qw/USER001_W USER002_W/];
+    my $callback = sub {
+        my ($self, $node, $node_info) = @_;
+        isa_ok $self, 'Data::RuledCluster';
+        is $node, 'USER001_W';
+        is_deeply $node_info, ['dbi:mysql:user001', 'root', '',];
+    };
 
-    $nodes = $dr->clusters('USER_R');
-    note explain $nodes;
-    is_deeply $nodes, [qw/USER001_R USER002_R/];
+    $dr->resolve('USER_W', 2, +{callback => $callback});
 };
 
 done_testing;

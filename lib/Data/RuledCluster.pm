@@ -64,7 +64,7 @@ sub resolve {
                 return $self->resolve( $resolved_node, \@keys, $opts );
             }
             elsif (is_hash_ref($cluster_info)) {
-                my ( $resolved_node, @keys ) = $self->resolver($args->{strategy})->resolve(
+                my ( $resolved_node, @keys ) = $self->resolver($cluster_info->{strategy})->resolve(
                     $self,
                     $cluster_or_node,
                     +{ %$cluster_info, key => $args, }
