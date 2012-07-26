@@ -6,7 +6,7 @@ use Carp ();
 use Class::Load ();
 use Data::Util qw(is_array_ref is_hash_ref);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my $class = shift;
@@ -125,7 +125,7 @@ __END__
 
 =head1 NAME
 
-Data::RuledCluster - Perl extention to do something
+Data::RuledCluster - clustering data resolver
 
 =head1 VERSION
 
