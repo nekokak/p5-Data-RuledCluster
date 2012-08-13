@@ -8,7 +8,6 @@ inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Repository.pm
 inc/Module/Install/WriteAll.pm
-lib/Data/.RuledCluster.pm.swp
 lib/Data/RuledCluster.pm
 lib/Data/RuledCluster/Strategy.pm
 lib/Data/RuledCluster/Strategy/Key.pm
