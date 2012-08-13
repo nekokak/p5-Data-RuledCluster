@@ -8,7 +8,11 @@ inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Repository.pm
 inc/Module/Install/WriteAll.pm
+lib/Data/.RuledCluster.pm.swp
 lib/Data/RuledCluster.pm
+lib/Data/RuledCluster/Strategy.pm
+lib/Data/RuledCluster/Strategy/Key.pm
+lib/Data/RuledCluster/Strategy/List.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
@@ -16,8 +20,7 @@ META.yml
 README
 t/000_load.t
 t/001_basic.t
+t/002_strategy_complex.t
+t/strategy/key.t
+t/strategy/list.t
 xt/perlcritic.t
-xt/pod.t
-xt/podcoverage.t
-xt/podspell.t
-xt/podsynopsis.t
