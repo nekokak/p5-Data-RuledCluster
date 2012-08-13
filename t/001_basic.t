@@ -38,6 +38,11 @@ subtest 'basic method' => sub {
     $nodes = $dr->clusters('USER_R');
     note explain $nodes;
     is_deeply $nodes, [qw/USER001_R USER002_R/];
+
+    is_deeply $dr->resolve('USER001_W'), +{node => 'USER001_W', node_info => ['dbi:mysql:user001', 'root', '',]};
+    is_deeply $dr->resolve('USER_W', 1), +{node => 'USER002_W', node_info => ['dbi:mysql:user002', 'root', '',]};
+
+    is_deeply $dr->config, $config;
 };
 
 done_testing;

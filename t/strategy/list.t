@@ -32,12 +32,12 @@ subtest 'List Strategy' => sub {
     my $node_info;
     $node_info = $dr->resolve('SLAVE', 1);
     note explain $node_info;
-    is_deeply $node_info, ['dbi:mysql:slave001', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 4), ['dbi:mysql:slave001', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 2), ['dbi:mysql:slave002', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 3), ['dbi:mysql:slave002', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 6), ['dbi:mysql:slave002', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 5), ['dbi:mysql:slave003', 'root', '',];
+    is_deeply $node_info, +{node => 'SLAVE001', node_info => ['dbi:mysql:slave001', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 4), +{node => 'SLAVE001', node_info => ['dbi:mysql:slave001', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 2), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 3), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 6), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 5), +{node => 'SLAVE003', node_info => ['dbi:mysql:slave003', 'root', '',]};
 };
 
 subtest 'List Strategy' => sub {
@@ -67,12 +67,12 @@ subtest 'List Strategy' => sub {
     my $node_info;
     $node_info = $dr->resolve('SLAVE', 1);
     note explain $node_info;
-    is_deeply $node_info, ['dbi:mysql:slave001', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 4), ['dbi:mysql:slave001', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 2), ['dbi:mysql:slave002', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 3), ['dbi:mysql:slave002', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 6), ['dbi:mysql:slave002', 'root', '',];
-    is_deeply $dr->resolve('SLAVE', 5), ['dbi:mysql:slave003', 'root', '',];
+    is_deeply $node_info, +{node => 'SLAVE001', node_info => ['dbi:mysql:slave001', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 4), +{node => 'SLAVE001', node_info => ['dbi:mysql:slave001', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 2), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 3), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 6), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
+    is_deeply $dr->resolve('SLAVE', 5), +{node => 'SLAVE003', node_info => ['dbi:mysql:slave003', 'root', '',]};
 };
 
 done_testing;

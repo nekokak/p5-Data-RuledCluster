@@ -26,11 +26,11 @@ subtest 'default Key Strategy' => sub {
     my $node_info;
     $node_info = $dr->resolve('USER_W', 1);
     note explain $node_info;
-    is_deeply $node_info, ['dbi:mysql:user002', 'root', '',];
+    is_deeply $node_info, +{node => 'USER002_W', node_info => ['dbi:mysql:user002', 'root', '',]};
 
     $node_info = $dr->resolve('USER_W', 2);
     note explain $node_info;
-    is_deeply $node_info, ['dbi:mysql:user001', 'root', '',];
+    is_deeply $node_info, +{node => 'USER001_W', node_info => ['dbi:mysql:user001', 'root', '',]};
 
     my $resolve_node_keys = $dr->resolve_node_keys('USER_W', [qw/1 2 3/]);
     note explain $resolve_node_keys;

@@ -25,25 +25,16 @@ sub resolver {
 
 sub config {
     my ($self, $config) = @_;
-    $self->{config} = $config;
+    $self->{config} = $config if $config;
+    $self->{config};
 }
 
 sub resolve {
-    my ($self, $cluster_or_node, $args, $opts) = @_;
+    my ($self, $cluster_or_node, $args) = @_;
 
     Carp::croak("missing mandatory config.") unless $self->{config};
 
-    if ( $self->is_node($cluster_or_node) ) {
-        my $node_info = $self->{config}->{node}->{$cluster_or_node};
-        if ($opts->{get_node_name}) {
-            return $cluster_or_node;
-        }
-        else {
-            my $callback = $opts->{callback} || $self->{callback};
-            return $callback ? $callback->($self, $cluster_or_node, $node_info) : $node_info;
-        }
-    }
-    elsif ( $self->is_cluster($cluster_or_node) ) {
+    if ( $self->is_cluster($cluster_or_node) ) {
         if ( is_hash_ref($args) ) {
             Carp::croak("args has not 'strategy' field") unless $args->{strategy};
             my ( $resolved_node, @keys ) = $self->resolver($args->{strategy})->resolve(
@@ -51,7 +42,7 @@ sub resolve {
                 $cluster_or_node,
                 $args
             );
-            return $self->resolve( $resolved_node, \@keys, $opts );
+            return $self->resolve( $resolved_node, \@keys );
         }
         else {
             my $cluster_info = $self->cluster_info($cluster_or_node);
@@ -61,7 +52,7 @@ sub resolve {
                     $cluster_or_node,
                     +{ key => $args, }
                 );
-                return $self->resolve( $resolved_node, \@keys, $opts );
+                return $self->resolve( $resolved_node, \@keys );
             }
             elsif (is_hash_ref($cluster_info)) {
                 my ( $resolved_node, @keys ) = $self->resolver($cluster_info->{strategy})->resolve(
@@ -69,9 +60,15 @@ sub resolve {
                     $cluster_or_node,
                     +{ %$cluster_info, key => $args, }
                 );
-                return $self->resolve( $resolved_node, \@keys, $opts );
+                return $self->resolve( $resolved_node, \@keys );
             }
         }
+    }
+    elsif ( $self->is_node($cluster_or_node) ) {
+        return +{
+            node => $cluster_or_node,
+            node_info => $self->{config}->{node}->{$cluster_or_node},
+        };
     }
 
     Carp::croak("$cluster_or_node is not defined.");
@@ -90,9 +87,9 @@ sub resolve_node_keys {
             $args = $key;
         }
         
-        my $resolved_node = $self->resolve( $cluster_or_node, $args, +{get_node_name => 1} );
-        $node_keys{$resolved_node} ||= [];
-        push @{$node_keys{$resolved_node}}, $key;
+        my $resolved = $self->resolve( $cluster_or_node, $args, +{get_node_name => 1} );
+        $node_keys{$resolved->{node}} ||= [];
+        push @{$node_keys{$resolved->{node}}}, $key;
     }
 
     return wantarray ? %node_keys : \%node_keys;
@@ -133,34 +130,9 @@ This document describes Data::RuledCluster version 0.01.
 
 =head1 SYNOPSIS
 
-sample1:
-
     use Data::RuledCluster;
-    use DBI;
-
-    my $dr = Data::RuledCluster->new(
-        config      => $config,
-        callback    => sub {
-            my $config = shift;
-            DBI->connect($config);
-        },
-    );
-    # or
-    use YAML;
-    my $dr = Data::RuledCluster->new(
-        config      => YAML::LoadFile('/path/to/config.yaml'),
-        callback    => sub {
-            my $config = shift;
-            DBI->connect($config);
-        },
-    );
-    my $object = $dr->resolve('USER_W', $user_id);
-    # or
-    my $object = $dr->resolve('USER001_W');
-
-    __END__
-    # key cluster config
-    +{
+    
+    my $config = +{
         clusters => +{
             USER_W => [qw/USER001_W USER002_W/],
             USER_R => [qw/USER001_R USER002_R/],
@@ -172,53 +144,59 @@ sample1:
             USER002_R => ['dbi:mysql:user002', 'root', '',],
         },
     };
-
-sample2:
-
-    use Data::RuledCluster;
-    use RedisDB;
-
     my $dr = Data::RuledCluster->new(
-        config      => $config,
-        callback    => sub {
-            my $config = shift;
-            RedisDB->new($config);
-        },
+        config => $config,
     );
-    my $object = $dr->resolve('LB_W', $lb_id);
+    my $resolved_data = $dr->resolve('USER_W', $user_id);
     # or
-    my $object = $dr->resolve('LB001_W');
-
-    __END__
-    # key cluster config
-    +{
-        clusters => +{
-            LB_W => [qw/LB001 LB002/],
-            LB_B => [qw/LB001 LB002/],
-        },
-        node => +{
-            LB001_W => [+{host => redis001, port => 6379,}],
-            LB002_W => [+{host => redis002, port => 6379,}],
-            LB001_B => [+{host => redis003, port => 6379,}],
-            LB002_B => [+{host => redis004, port => 6379,}],
-        },
-    };
+    my $resolved_data = $dr->resolve('USER001_W');
+    # $resolved_data: +{ node => 'USER001_W', node_info => ['dbi:mysql:user001', 'root', '',]}
 
 =head1 DESCRIPTION
 
 # TODO
 
-=head1 INTERFACE
+=head1 METHOD
 
-=head2 Functions
+=item my $dr = Data::RuledCluster->new($config)
 
-=head3 C<< hello() >>
+create a new Data::RuledCluster instance.
 
-# TODO
+=item $dr->config($config)
+
+set or get config.
+
+=item $dr->resolve($cluster_or_node, $args)
+
+resolve cluster data.
+
+=item $dr->resolve_node_keys($cluster, $keys, $args)
+
+Return hash resolved node and keys.
+
+=item $dr->is_cluster($cluster_or_node)
+
+If $cluster_or_node is cluster, return true.
+But $cluster_or_node is not cluster, return false.
+
+=item $dr->is_node($cluster_or_node)
+
+If $cluster_or_node is node, return true.
+But $cluster_or_node is not node, return false.
+
+=item $dr->cluster_info($cluster)
+
+Return cluster info hash ref.
+
+=item $dr->clusters($cluster)
+
+Retrieve cluster member node names as Array.
 
 =head1 DEPENDENCIES
 
-Perl 5.8.1 or later.
+L<Class::Load>
+
+L<Data::Util>
 
 =head1 BUGS
 

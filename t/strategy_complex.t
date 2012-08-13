@@ -5,7 +5,6 @@ use Data::RuledCluster;
 
 my $dr = Data::RuledCluster->new(
     config   => undef,
-    callback => undef,
 );
 
 subtest 'Strategy Complex' => sub {
@@ -29,12 +28,11 @@ subtest 'Strategy Complex' => sub {
     };
     $dr->config($config);
 
-    my $node_info;
-    $node_info = $dr->resolve('BIGDATA', 1);
+    my $node_info = $dr->resolve('BIGDATA', 1);
     note explain $node_info;
-    is_deeply $node_info, ['dbi:mysql:bigdata003', 'root', '',];
-    is_deeply $dr->resolve('BIGDATA', 2), ['dbi:mysql:bigdata002', 'root', '',];
-    is_deeply $dr->resolve('BIGDATA', 666), ['dbi:mysql:bigdata001', 'root', '',];
+    is_deeply $node_info, +{node => 'BIGDATA003', node_info => ['dbi:mysql:bigdata003', 'root', '',]};
+    is_deeply $dr->resolve('BIGDATA', 2),   +{node => 'BIGDATA002', node_info => ['dbi:mysql:bigdata002', 'root', '',]};
+    is_deeply $dr->resolve('BIGDATA', 666), +{node => 'BIGDATA001', node_info => ['dbi:mysql:bigdata001', 'root', '',]};
 };
 
 done_testing;
