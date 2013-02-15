@@ -30,6 +30,9 @@ all_from 'lib/Data/RuledCluster.pm';
 test_requires 'Test::More'     => '0.88';
 test_requires 'Test::Requires' => '0.06';
 
+requires 'Class::Load' => '0';
+requires 'Data::Util'  => '0';
+
 auto_set_repository;
 
 tests_recursive;
