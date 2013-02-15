@@ -1,5 +1,8 @@
 Revision history for Perl extension Data::RuledCluster
 
+0.03 2013/02/15
+    - added dependency.
+
 0.02 2012/08/14
     - release for CPAN.
 
