@@ -6,7 +6,7 @@ use Carp ();
 use Class::Load ();
 use Data::Util qw(is_array_ref is_hash_ref);
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub new {
     my $class = shift;
