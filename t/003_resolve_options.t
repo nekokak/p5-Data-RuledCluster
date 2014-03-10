@@ -11,7 +11,7 @@ my $dr = Data::RuledCluster->new(
     callback => undef,
 );
 
-subtest 'Database Strategy' => sub {
+subtest 'using options argument' => sub {
     my $config = +{
         clusters => +{
             CLUSTER => +{
@@ -64,3 +64,22 @@ SQL
 };
 
 done_testing;
+
+package
+    Data::RuledCluster::Strategy::Database;
+use parent 'Data::RuledCluster::Strategy';
+
+sub resolve {
+    my ( $class, $resolver, $node_or_cluster, $args, $options ) = @_;
+
+    my @keys = $class->keys_from_args($args);
+
+    my $sql = $args->{sql};
+    my $dbh = $options->{dbh};
+
+    my ($resolved_node) = $dbh->selectrow_array($sql, undef, @keys);
+
+    return ($resolved_node, @keys);
+}
+
+1;
