@@ -30,7 +30,7 @@ sub config {
 }
 
 sub resolve {
-    my ($self, $cluster_or_node, $args) = @_;
+    my ($self, $cluster_or_node, $args, $options) = @_;
 
     Carp::croak("missing mandatory config.") unless $self->{config};
 
@@ -40,7 +40,8 @@ sub resolve {
             my ( $resolved_node, @keys ) = $self->resolver($args->{strategy})->resolve(
                 $self,
                 $cluster_or_node,
-                $args
+                $args,
+                $options,
             );
             return $self->resolve( $resolved_node, \@keys );
         }
@@ -50,17 +51,19 @@ sub resolve {
                 my ( $resolved_node, @keys ) = $self->resolver('Key')->resolve(
                     $self,
                     $cluster_or_node,
-                    +{ key => $args, }
+                    +{ key => $args, },
+                    $options,
                 );
-                return $self->resolve( $resolved_node, \@keys );
+                return $self->resolve( $resolved_node, \@keys, $options );
             }
             elsif (is_hash_ref($cluster_info)) {
                 my ( $resolved_node, @keys ) = $self->resolver($cluster_info->{strategy})->resolve(
                     $self,
                     $cluster_or_node,
-                    +{ %$cluster_info, key => $args, }
+                    +{ %$cluster_info, key => $args, },
+                    $options,
                 );
-                return $self->resolve( $resolved_node, \@keys );
+                return $self->resolve( $resolved_node, \@keys, $options );
             }
         }
     }
@@ -75,7 +78,7 @@ sub resolve {
 }
 
 sub resolve_node_keys {
-    my ($self, $cluster_or_node, $keys, $args) = @_;
+    my ($self, $cluster_or_node, $keys, $args, $options) = @_;
 
     my %node_keys;
     for my $key ( @$keys ) {
@@ -86,8 +89,8 @@ sub resolve_node_keys {
         else {
             $args = $key;
         }
-        
-        my $resolved = $self->resolve( $cluster_or_node, $args, +{get_node_name => 1} );
+
+        my $resolved = $self->resolve( $cluster_or_node, $args, $options );
         $node_keys{$resolved->{node}} ||= [];
         push @{$node_keys{$resolved->{node}}}, $key;
     }
