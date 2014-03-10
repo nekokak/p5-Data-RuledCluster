@@ -3,9 +3,7 @@ use warnings;
 use Test::More;
 use Data::RuledCluster;
 use DBI;
-use File::Temp qw(tempdir);
 
-my $tempdir  = tempdir CLEANUP => 1;
 my $dr = Data::RuledCluster->new(
     config   => undef,
     callback => undef,
@@ -20,7 +18,7 @@ subtest 'using options argument' => sub {
             },
         },
         node => +{
-            MASTER     => ["dbi:SQLite:dbname=$tempdir/master", '', ''],
+            MASTER     => ["dbi:SQLite::memory:", '', ''],
             CLUSTER001 => ['dbi:mysql:slave001', '', '',],
             CLUSTER002 => ['dbi:mysql:slave002', '', '',],
         },

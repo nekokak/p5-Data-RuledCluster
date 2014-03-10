@@ -30,7 +30,7 @@ all_from 'lib/Data/RuledCluster.pm';
 test_requires 'Test::More'     => '0.88';
 test_requires 'Test::Requires' => '0.06';
 test_requires 'DBI'            => '0';
-test_requires 'File::Temp'     => '0.22';
+test_requires 'DBD::SQLite'    => '0';
 
 requires 'Class::Load' => '0';
 requires 'Data::Util'  => '0';
