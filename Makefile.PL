@@ -29,6 +29,8 @@ all_from 'lib/Data/RuledCluster.pm';
 
 test_requires 'Test::More'     => '0.88';
 test_requires 'Test::Requires' => '0.06';
+test_requires 'DBIx::Handler'  => '0.07';
+test_requires 'File::Temp'     => '0.22';
 
 requires 'Class::Load' => '0';
 requires 'Data::Util'  => '0';
