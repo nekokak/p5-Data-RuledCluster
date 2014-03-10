@@ -47,6 +47,14 @@ subtest 'Formatted Strategy' => sub {
     };
     $e = $@;
     like $e, qr/node_format settings must be required/;
+
+    my $resolve_node_keys = $dr->resolve_node_keys('SLAVE_R', [qw/1 2 100/]);
+    note explain $resolve_node_keys;
+    is_deeply $resolve_node_keys, +{
+        SLAVE001_R => [qw/1/],
+        SLAVE002_R => [qw/2/],
+        SLAVE100_R => [qw/100/],
+    };
 };
 
 done_testing;

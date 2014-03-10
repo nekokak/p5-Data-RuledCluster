@@ -38,6 +38,14 @@ subtest 'List Strategy' => sub {
     is_deeply $dr->resolve('SLAVE', 3), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
     is_deeply $dr->resolve('SLAVE', 6), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
     is_deeply $dr->resolve('SLAVE', 5), +{node => 'SLAVE003', node_info => ['dbi:mysql:slave003', 'root', '',]};
+
+    my $resolve_node_keys = $dr->resolve_node_keys('SLAVE', [qw/1 2 3 4 5 6/]);
+    note explain $resolve_node_keys;
+    is_deeply $resolve_node_keys, +{
+        SLAVE001 => [qw/1 4/],
+        SLAVE002 => [qw/2 3 6/],
+        SLAVE003 => [qw/5/],
+    };
 };
 
 subtest 'List Strategy' => sub {
@@ -73,6 +81,14 @@ subtest 'List Strategy' => sub {
     is_deeply $dr->resolve('SLAVE', 3), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
     is_deeply $dr->resolve('SLAVE', 6), +{node => 'SLAVE002', node_info => ['dbi:mysql:slave002', 'root', '',]};
     is_deeply $dr->resolve('SLAVE', 5), +{node => 'SLAVE003', node_info => ['dbi:mysql:slave003', 'root', '',]};
+
+    my $resolve_node_keys = $dr->resolve_node_keys('SLAVE', [qw/1 2 3 4 5 6/]);
+    note explain $resolve_node_keys;
+    is_deeply $resolve_node_keys, +{
+        SLAVE001 => [qw/1 4/],
+        SLAVE002 => [qw/2 3 6/],
+        SLAVE003 => [qw/5/],
+    };
 };
 
 done_testing;
