@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Data::RuledCluster;
-use DBIx::Handler;
+use DBI;
 use File::Temp qw(tempdir);
 
 my $tempdir  = tempdir CLEANUP => 1;
@@ -26,9 +26,8 @@ subtest 'Database Strategy' => sub {
         },
     };
     $dr->config($config);
-    my $node    = $dr->resolve('MASTER');
-    my $handler = DBIx::Handler->new(@{$node->{node_info}});
-    my $dbh     = $handler->dbh;
+    my $node  = $dr->resolve('MASTER');
+    my $dbh   = DBI->connect(@{$node->{node_info}});
 
     {
         $dbh->do(<< 'SQL');
