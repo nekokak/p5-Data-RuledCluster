@@ -1,5 +1,8 @@
 Revision history for Perl extension Data::RuledCluster
 
+0.05 2014/03/10
+    - added options argument (resolve and resolve_node_keys)
+
 0.04 2013/03/05
     - added Formatted Strategy.
 

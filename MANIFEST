@@ -21,6 +21,7 @@ README
 t/000_load.t
 t/001_basic.t
 t/002_strategy_complex.t
+t/003_resolve_options.t
 t/strategy/formatted.t
 t/strategy/key.t
 t/strategy/list.t
