@@ -25,3 +25,11 @@ cover_db*
 *.gcno
 *.gcov
 *.stackdump
+/Data-RuledCluster-*
+/.build
+/_build_params
+/Build
+/Build.bat
+!Build/
+!META.json
+!LICENSE

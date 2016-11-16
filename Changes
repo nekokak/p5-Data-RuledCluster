@@ -1,5 +1,7 @@
 Revision history for Perl extension Data::RuledCluster
 
+{{$NEXT}}
+
 0.05 2014/03/10
     - added options argument (resolve and resolve_node_keys)
 
