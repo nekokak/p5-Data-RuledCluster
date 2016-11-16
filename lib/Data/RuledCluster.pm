@@ -34,44 +34,12 @@ sub resolve {
 
     Carp::croak("missing mandatory config.") unless $self->{config};
 
-    if ( $self->is_cluster($cluster_or_node) ) {
-        if ( is_hash_ref($args) ) {
-            Carp::croak("args has not 'strategy' field") unless $args->{strategy};
-            my ( $resolved_node, @keys ) = $self->resolver($args->{strategy})->resolve(
-                $self,
-                $cluster_or_node,
-                $args,
-                $options,
-            );
-            return $self->resolve( $resolved_node, \@keys );
-        }
-        else {
-            my $cluster_info = $self->cluster_info($cluster_or_node);
-            if (is_array_ref($cluster_info)) {
-                my ( $resolved_node, @keys ) = $self->resolver('Key')->resolve(
-                    $self,
-                    $cluster_or_node,
-                    +{ key => $args, },
-                    $options,
-                );
-                return $self->resolve( $resolved_node, \@keys, $options );
-            }
-            elsif (is_hash_ref($cluster_info)) {
-                my ( $resolved_node, @keys ) = $self->resolver($cluster_info->{strategy})->resolve(
-                    $self,
-                    $cluster_or_node,
-                    +{ %$cluster_info, key => $args, },
-                    $options,
-                );
-                return $self->resolve( $resolved_node, \@keys, $options );
-            }
-        }
+    if ($self->is_cluster($cluster_or_node)) {
+        my ($resolved_node, @keys) = $self->_delegate(resolve => $cluster_or_node, $args, $options);
+        return $self->resolve($resolved_node, \@keys);
     }
-    elsif ( $self->is_node($cluster_or_node) ) {
-        return +{
-            node => $cluster_or_node,
-            node_info => $self->{config}->{node}->{$cluster_or_node},
-        };
+    elsif ($self->is_node($cluster_or_node)) {
+        return $self->_make_node_hashref($cluster_or_node);
     }
 
     Carp::croak("$cluster_or_node is not defined.");
@@ -79,23 +47,79 @@ sub resolve {
 
 sub resolve_node_keys {
     my ($self, $cluster_or_node, $keys, $args, $options) = @_;
+    my $orig_args = $args;
 
-    my %node_keys;
-    for my $key ( @$keys ) {
-        if ( is_hash_ref $args ) {
-            $args->{strategy} ||= 'Key';
-            $args->{key}        = $key;
-        }
-        else {
-            $args = $key;
-        }
-
-        my $resolved = $self->resolve( $cluster_or_node, $args, $options );
-        $node_keys{$resolved->{node}} ||= [];
-        push @{$node_keys{$resolved->{node}}}, $key;
+    if ( is_hash_ref $args ) {
+        $args = {%$args}; # shallow copy
+        $args->{strategy} ||= 'Key';
+        $args->{key}        = $keys;
+    }
+    else {
+        $args = $keys;
     }
 
+    my %node_keys = $self->_delegate(resolve_node_keys => $cluster_or_node, $args, $options);
+    for my $cluster_or_node (keys %node_keys) {
+        next if $self->is_node($cluster_or_node);
+        if ($self->is_cluster($cluster_or_node)) {
+            my $cluster  = $cluster_or_node;
+            my @key_info = @{ delete $node_keys{$cluster_or_node} };
+            for my $key_info (@key_info) {
+                my %child_node_keys = $self->resolve_node_keys($cluster, $key_info->{next}, $orig_args, $options);
+                for my $node (keys %child_node_keys) {
+                    push @{ $node_keys{$node} ||= [] } => $key_info->{root};
+                }
+            }
+            next;
+        }
+
+        Carp::croak("$cluster_or_node is not defined.");
+    }
     return wantarray ? %node_keys : \%node_keys;
+}
+
+sub _delegate {
+    my ($self, $method, $cluster, $args, $options) = @_;
+
+    Carp::croak("missing mandatory config.") unless $self->{config};
+
+    if ( is_hash_ref($args) ) {
+        Carp::croak("args has not 'strategy' field") unless $args->{strategy};
+        return $self->resolver($args->{strategy})->$method(
+            $self,
+            $cluster,
+            $args,
+            $options,
+        );
+    }
+
+    my $cluster_info = $self->cluster_info($cluster);
+    if (is_array_ref($cluster_info)) {
+        return $self->resolver('Key')->$method(
+            $self,
+            $cluster,
+            +{ key => $args, },
+            $options,
+        );
+    }
+    elsif (is_hash_ref($cluster_info)) {
+        return $self->resolver($cluster_info->{strategy})->$method(
+            $self,
+            $cluster,
+            +{ %$cluster_info, key => $args, },
+            $options,
+        );
+    }
+
+    Carp::croak('$cluster_info is invalid.');
+}
+
+sub _make_node_hashref {
+    my ($self, $node) = @_;
+    return {
+        node      => $node,
+        node_info => $self->{config}->{node}->{$node},
+    };
 }
 
 sub cluster_info {
