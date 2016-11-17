@@ -147,6 +147,8 @@ sub is_node {
 1;
 __END__
 
+=for stopwords dr
+
 =head1 NAME
 
 Data::RuledCluster - clustering data resolver
