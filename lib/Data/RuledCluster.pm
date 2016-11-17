@@ -6,7 +6,7 @@ use Carp ();
 use Class::Load ();
 use Data::Util qw(is_array_ref is_hash_ref);
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub new {
     my $class = shift;
@@ -155,7 +155,7 @@ Data::RuledCluster - clustering data resolver
 
 =head1 VERSION
 
-This document describes Data::RuledCluster version 0.01.
+This document describes Data::RuledCluster version 0.06.
 
 =head1 SYNOPSIS
 
