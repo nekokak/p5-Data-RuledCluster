@@ -185,6 +185,8 @@ This document describes Data::RuledCluster version 0.01.
 
 =head1 METHOD
 
+=over 4
+
 =item my $dr = Data::RuledCluster->new($config)
 
 create a new Data::RuledCluster instance.
@@ -218,6 +220,8 @@ Return cluster info hash ref.
 =item $dr->clusters($cluster)
 
 Retrieve cluster member node names as Array.
+
+=back
 
 =head1 DEPENDENCIES
 
